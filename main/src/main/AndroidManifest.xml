@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2012-2014 Arne Schwabe
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
-  -->
-
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="de.blinkt.openvpn">
+    package="de.blinkt.openvpn" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,7 +14,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
-
     <application
         android:name=".core.ICSOpenVPNApplication"
         android:allowBackup="true"
@@ -24,18 +21,16 @@
         android:label="@string/app"
         android:supportsRtl="true"
         android:theme="@style/blinkt"
-        tools:ignore="UnusedAttribute">
+        tools:ignore="UnusedAttribute" >
         <activity
             android:name=".activities.VPNPreferences"
             android:exported="false"
             android:windowSoftInputMode="stateHidden" />
-
         <activity
+            android:name=".activities.DisconnectVPN"
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
-            android:name=".activities.DisconnectVPN"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-
         <activity
             android:name=".activities.LogWindow"
             android:allowTaskReparenting="true"
@@ -44,7 +39,11 @@
         <activity android:name=".activities.FileSelect" />
         <activity
             android:name=".activities.MainActivity"
-            tools:ignore="ExportedActivity">
+            tools:ignore="ExportedActivity" />
+        <activity
+            android:name="net.axionvpn.client.VpnSelectActivity"
+            tools:ignore="ExportedActivity"
+            android:label="@string/title_activity_vpn_select">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,37 +54,34 @@
 
         <service
             android:name=".core.OpenVPNService"
-            android:permission="android.permission.BIND_VPN_SERVICE">
+            android:permission="android.permission.BIND_VPN_SERVICE" >
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
-
         <service
-            tools:ignore="ExportedService"
-            android:name=".api.ExternalOpenVPNService">
-          
+            android:name=".api.ExternalOpenVPNService"
+            tools:ignore="ExportedService" >
             <intent-filter>
                 <action android:name="de.blinkt.openvpn.api.IOpenVPNAPIService" />
             </intent-filter>
         </service>
 
-        <activity android:name=".api.GrantPermissionsActivity">
+        <activity android:name=".api.GrantPermissionsActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".api.ConfirmDialog">
+        <activity android:name=".api.ConfirmDialog" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <receiver android:name=".OnBootReceiver">
-            <intent-filter android:priority="999">
+        <receiver android:name=".OnBootReceiver" >
+            <intent-filter android:priority="999" >
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-
             </intent-filter>
         </receiver>
 
@@ -93,8 +89,8 @@
             android:name=".activities.ConfigConverter"
             android:label="Convert Config File"
             android:uiOptions="splitActionBarWhenNarrow"
-            tools:ignore="ExportedActivity">
-            <intent-filter android:label="@string/import_config">
+            tools:ignore="ExportedActivity" >
+            <intent-filter android:label="@string/import_config" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -102,7 +98,7 @@
 
                 <data android:mimeType="application/x-openvpn-profile" />
             </intent-filter>
-            <intent-filter android:label="@string/import_config">
+            <intent-filter android:label="@string/import_config" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -110,7 +106,7 @@
 
                 <data android:mimeType="application/ovpn" />
             </intent-filter>
-            <intent-filter android:label="@string/import_config">
+            <intent-filter android:label="@string/import_config" >
 
                 <!-- http://stackoverflow.com/questions/7f030832/associating-certain-file-extension-to-my-android-application/7102838#7102838 -->
                 <action android:name="android.intent.action.VIEW" />
@@ -134,22 +130,21 @@
             android:excludeFromRecents="true"
             android:label="@string/vpn_launch_title"
             android:theme="@android:style/Theme.DeviceDefault.Light.Panel"
-            tools:ignore="ExportedActivity">
+            tools:ignore="ExportedActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".activities.CreateShortcuts"
             android:excludeFromRecents="true"
             android:label="@string/vpn_shortcut"
-            android:theme="@android:style/Theme.DeviceDefault.Light.DialogWhenLarge">
+            android:theme="@android:style/Theme.DeviceDefault.Light.DialogWhenLarge" >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
