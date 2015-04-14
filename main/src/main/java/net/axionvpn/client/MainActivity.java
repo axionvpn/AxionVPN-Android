@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,74 +15,21 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import de.blinkt.openvpn.LaunchVPN;
-import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.activities.MainActivity;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ProfileManager;
 
-abstract class WaitingRunnable {
-    public Exception backgroundException = null;
-    abstract public void inBackground() throws Exception; // required
-    public void onCompleted() { }        // optional
-}
-
-/* this class draws the waiting_overlay layout into the provided layout for the duration of the
-   background task. it will execute the optional onCompleted in the UI thread just like asynctask.
-   // TODO improve activity recreation behavior
- */
-class WaitingTask extends AsyncTask<WaitingRunnable,Void,Void> {
-
-    private Context context;
-    private ViewGroup root;
-    private WaitingRunnable[] runnables;
-
-    public WaitingTask(Context context, ViewGroup root) {
-        this.context = context;
-        this.root = root;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        // overlay progress UI
-        LayoutInflater inflater = LayoutInflater.from(context);
-        inflater.inflate(R.layout.waiting_overlay,root,true);
-    }
-
-    @Override
-    protected Void doInBackground(WaitingRunnable...runnables) {
-        this.runnables = runnables;
-        for (WaitingRunnable r : runnables) {
-            try {
-                r.inBackground();
-            } catch (Exception e) {
-                r.backgroundException = e;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        for (WaitingRunnable r : runnables)
-            r.onCompleted();
-
-        // remove progress UI
-        View waiting = root.findViewById(R.id.waiting_root);
-        if(waiting!=null)
-            root.removeView(waiting);
-    }
-}
-
-public class VpnSelectActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private EditText editUser,editPass;
     private Spinner spinner;
@@ -102,7 +47,10 @@ public class VpnSelectActivity extends Activity implements View.OnClickListener 
         editUser.setText(prefs.getString("username", ""));
         editPass.setText(prefs.getString("password", ""));
 
-        if (savedInstanceState==null) {
+        VpnDesc [] region_cache = retrieveVpnRegionCache();
+        if(region_cache!=null) {
+            updateVpnRegionUi(region_cache);
+        } else {
             updateRegions();
         }
     }
@@ -129,6 +77,50 @@ public class VpnSelectActivity extends Activity implements View.OnClickListener 
         return super.onOptionsItemSelected(item);
     }
 
+    public void rememberLastRegion(VpnDesc vpn) {
+        getPreferences(MODE_PRIVATE).edit().putInt("region_last_selected", vpn.id).apply();
+    }
+
+    public void updateVpnRegionUi(VpnDesc [] vpns) {
+        ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getApplicationContext(), R.layout.spinner_region_item, vpns);
+        spinner.setAdapter(adapter);
+        int lastSelected = getPreferences(MODE_PRIVATE).getInt("region_last_selected", -1);
+        if (lastSelected>=0) {
+            for(int i=0;i<vpns.length;i++) {
+                if (vpns[i].id == lastSelected) {
+                    spinner.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void storeVpnRegionCache(VpnDesc [] vpns) {
+        SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+        Gson gson = new Gson(); // json encode the objects for storage as strings
+        Set<String> region_cache = new HashSet<String>();
+        for(VpnDesc v : vpns)
+            region_cache.add(gson.toJson(v));
+        editor.putStringSet("region_cache",region_cache);
+        editor.apply();
+    }
+
+    public VpnDesc [] retrieveVpnRegionCache() {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        Set<String> region_cache = prefs.getStringSet("region_cache",null);
+
+        if(region_cache==null)
+            return null;
+
+        List<VpnDesc> vpns = new ArrayList<VpnDesc>(region_cache.size());
+        Gson gson = new Gson(); // objects stored as json strings
+        for(String s:region_cache) {
+            VpnDesc vpn = gson.fromJson(s,VpnDesc.class);
+            vpns.add(vpn);
+        }
+        return vpns.toArray(new VpnDesc[vpns.size()]);
+    }
+
     public void updateRegions() {
         ViewGroup root = (ViewGroup) findViewById(R.id.root_layout);
         new WaitingTask(this, root).execute(new WaitingRunnable() {
@@ -142,8 +134,8 @@ public class VpnSelectActivity extends Activity implements View.OnClickListener 
             @Override
             public void onCompleted() {
                 if (vpns != null) {
-                    ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getApplicationContext(), R.layout.spinner_region_item, vpns);
-                    spinner.setAdapter(adapter);
+                    updateVpnRegionUi(vpns);
+                    storeVpnRegionCache(vpns);
                 } else if (backgroundException != null) {
                     Toast.makeText(getApplicationContext(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("AxionVpn", "Error updating regions", backgroundException);
@@ -151,6 +143,7 @@ public class VpnSelectActivity extends Activity implements View.OnClickListener 
             }
         });
     }
+
     public void updateLoginInfo() {
         String username = editUser.getText().toString();
         String password = editPass.getText().toString();
@@ -221,15 +214,12 @@ public class VpnSelectActivity extends Activity implements View.OnClickListener 
                 // get username/pass from text fields and store in prefs
                 updateLoginInfo();
                 // get selected VPN id
-                ArrayAdapter<VpnDesc> adapter = (ArrayAdapter<VpnDesc>)spinner.getAdapter();
-                final VpnDesc vpn = adapter.getItem(spinner.getSelectedItemPosition());
+                final VpnDesc vpn = (VpnDesc)spinner.getSelectedItem();
+                rememberLastRegion(vpn);
                 // fetch config and connect
                 connectVpn(vpn.id);
                 break;
 
-            case R.id.button_main:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
         }
     }
 }

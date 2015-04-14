@@ -8,7 +8,7 @@ package de.blinkt.openvpn.core;
 import android.content.Context;
 import android.text.TextUtils;
 
-import de.blinkt.openvpn.R;
+import net.axionvpn.client.R;
 import de.blinkt.openvpn.VpnProfile;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemReader;

@@ -19,7 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import de.blinkt.openvpn.R;
+import net.axionvpn.client.R;
 import de.blinkt.openvpn.core.VpnStatus;
 
 public class SendDumpFragment extends Fragment  {

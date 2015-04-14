@@ -18,7 +18,7 @@ import android.text.TextUtils;
 
 import org.w3c.dom.Text;
 
-import de.blinkt.openvpn.R;
+import net.axionvpn.client.R;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;

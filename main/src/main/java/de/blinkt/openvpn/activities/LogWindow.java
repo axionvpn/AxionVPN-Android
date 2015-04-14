@@ -9,7 +9,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import de.blinkt.openvpn.R;
+import net.axionvpn.client.R;
 import de.blinkt.openvpn.fragments.LogFragment;
 
 /**

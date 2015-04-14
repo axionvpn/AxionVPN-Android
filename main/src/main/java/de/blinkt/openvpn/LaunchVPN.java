@@ -23,6 +23,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import net.axionvpn.client.R;
+
 import java.io.IOException;
 
 import de.blinkt.openvpn.activities.LogWindow;

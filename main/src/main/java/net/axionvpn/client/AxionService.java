@@ -2,6 +2,8 @@ package net.axionvpn.client;
 
 import android.util.Log;
 
+import java.io.Serializable;
+
 import retrofit.RestAdapter;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
