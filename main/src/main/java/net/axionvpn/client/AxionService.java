@@ -2,11 +2,7 @@ package net.axionvpn.client;
 
 import android.util.Log;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import retrofit.RestAdapter;
-import retrofit.client.Response;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
@@ -24,7 +20,7 @@ public class AxionService {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(url)
                 .build();
-        restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
+        //restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         service = restAdapter.create(AxionApi.class);
     }
 
