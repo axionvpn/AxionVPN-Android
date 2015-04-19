@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.axionvpn.client.MainActivity"
+    tools:context=".MainActivity"
     android:id="@+id/root_layout">
 
 
@@ -12,7 +12,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:hint="username"
-        android:id="@+id/edit_username"
+        android:id="@+id/et_username"
         />
 
     <EditText
@@ -20,18 +20,19 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/edit_username"
+        android:layout_below="@id/et_username"
         android:hint="password"
-        android:id="@+id/edit_password"
+        android:password="true"
+        android:id="@+id/et_password"
         />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edit_password"
+        android:layout_below="@id/et_password"
         android:layout_alignParentRight="true"
         android:padding="10dp"
-        android:text="Update"
+        android:text="Update Region List"
         android:onClick="onClick"
         android:id="@+id/button_get_regions"
         />
@@ -39,7 +40,7 @@
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/edit_password"
+        android:layout_below="@id/et_password"
         android:layout_alignParentLeft="true"
         android:id="@+id/spinner_region_select"
         android:padding="10dp"
@@ -62,9 +63,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/button_connect"
         android:layout_alignParentLeft="true"
-        android:text="main activity"
+        android:text="Disconnect"
         android:onClick="onClick"
-        android:id="@+id/button_main"
+        android:id="@+id/button_disconnect"
+        />
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:editable="false"
+        android:layout_below="@id/button_disconnect"
+        android:id="@+id/et_ip"
+        />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/et_ip"
+        android:id="@+id/tv_acct_type"
         />
 
 </RelativeLayout>

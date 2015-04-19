@@ -233,22 +233,13 @@ public class ExternalOpenVPNService extends Service implements StateListener {
 
         @Override
         public Intent prepare(String packageName) {
-            if (new ExternalAppDatabase(ExternalOpenVPNService.this).isAllowed(packageName))
-                return null;
-
-            Intent intent = new Intent();
-            intent.setClass(ExternalOpenVPNService.this, ConfirmDialog.class);
-            return intent;
+            return null;
         }
 
         @Override
         public Intent prepareVPNService() throws RemoteException {
             checkOpenVPNPermission();
-
-            if (VpnService.prepare(ExternalOpenVPNService.this) == null)
-                return null;
-            else
-                return new Intent(getBaseContext(), GrantPermissionsActivity.class);
+            return null;
         }
 
 

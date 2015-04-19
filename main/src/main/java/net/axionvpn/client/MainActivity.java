@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -26,10 +27,13 @@ import java.util.Set;
 
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener, VpnStatus.StateListener {
 
     private EditText editUser,editPass;
     private Spinner spinner;
@@ -39,8 +43,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vpn_select);
 
-        editUser = (EditText)findViewById(R.id.edit_username);
-        editPass = (EditText)findViewById(R.id.edit_password);
+        editUser = (EditText)findViewById(R.id.et_username);
+        editPass = (EditText)findViewById(R.id.et_password);
         spinner = (Spinner) findViewById(R.id.spinner_region_select);
 
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
@@ -138,7 +142,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     storeVpnRegionCache(vpns);
                 } else if (backgroundException != null) {
                     Toast.makeText(getApplicationContext(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("AxionVpn", "Error updating regions", backgroundException);
+                    LogManager.e("Error updating regions", backgroundException);
                 }
             }
         });
@@ -163,6 +167,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         ViewGroup root = (ViewGroup) findViewById(R.id.root_layout);
         new WaitingTask(this, root).execute(new WaitingRunnable() {
             private VpnProfile vpnProfile = null;
+
             @Override
             public void inBackground() throws Exception {
                 String conf = AxionService.getConfigForRegion(regionId);
@@ -173,25 +178,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 vpnProfile = cp.convertProfile();
                 vpnProfile.mName = "AxionVPN";
             }
+
             @Override
             public void onCompleted() {
                 if (backgroundException != null) {
-                    Toast.makeText(getApplicationContext(),backgroundException.getMessage(),Toast.LENGTH_SHORT).show();
-                    Log.e("AxionVpn","Error fetching config data",backgroundException);
+                    Toast.makeText(getApplicationContext(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
+                    LogManager.e("Error fetching config data", backgroundException);
                 } else {
                     Context ctx = getApplicationContext();
 
                     // save into openvpn profile manager
                     ProfileManager vpl = ProfileManager.getInstance(ctx);
                     VpnProfile prevProfile = vpl.getProfileByName("AxionVPN");
-                    if (prevProfile!=null)
-                        vpl.removeProfile(ctx,prevProfile);
+                    if (prevProfile != null)
+                        vpl.removeProfile(ctx, prevProfile);
                     vpl.addProfile(vpnProfile);
                     vpl.saveProfile(ctx, vpnProfile);
                     vpl.saveProfileList(ctx);
 
                     // launch vpn client
-                    Intent intent = new Intent(ctx,LaunchVPN.class);
+                    Intent intent = new Intent(ctx, LaunchVPN.class);
                     intent.putExtra(LaunchVPN.EXTRA_KEY, vpnProfile.getUUID().toString());
                     intent.setAction(Intent.ACTION_MAIN);
                     intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
@@ -200,7 +206,65 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
             }
         });
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        VpnStatus.removeStateListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        VpnStatus.addStateListener(this);
+    }
+
+    @Override
+    public void updateState(String state, String logmessage, int localizedResId, VpnStatus.ConnectionStatus level) {
+        switch (level) {
+
+            case LEVEL_CONNECTED:
+                new AsyncTask<Void,Void,RespGetConnInfo>() {
+                    private Exception backgroundExc = null;
+                    @Override
+                    protected RespGetConnInfo doInBackground(Void... voids) {
+                        try {
+                            return AxionService.getConnInfo();
+                        } catch (Exception e) {
+                            backgroundExc = e;
+                            return null;
+                        }
+                    }
+                    @Override
+                    protected void onPostExecute(RespGetConnInfo info) {
+                        if (info!=null) {
+                            ((EditText) findViewById(R.id.et_ip)       ).setText(info.ip_address);
+                            ((TextView) findViewById(R.id.tv_acct_type)).setText(info.acc_type);
+                        }
+                    }
+                }.execute();
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.button_connect).setEnabled(false);
+                        findViewById(R.id.button_disconnect).setEnabled(true);
+                    }
+                });
+                break;
+
+            default:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.button_connect).setEnabled(true);
+                        findViewById(R.id.button_disconnect).setEnabled(false);
+                    }
+                });
+                break;
+        }
     }
 
     public void onClick(View view) {
@@ -218,6 +282,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 rememberLastRegion(vpn);
                 // fetch config and connect
                 connectVpn(vpn.id);
+                break;
+
+            case R.id.button_disconnect:
+                Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
+                disconnectVPN.setAction(OpenVPNService.DISCONNECT_VPN);
+                startActivity(disconnectVPN);
                 break;
 
         }

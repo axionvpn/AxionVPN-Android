@@ -1,9 +1,5 @@
 package net.axionvpn.client;
 
-import android.util.Log;
-
-import java.io.Serializable;
-
 import retrofit.RestAdapter;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -31,14 +27,13 @@ public class AxionService {
         password = pass;
     }
 
-    public static void getConnInfo() {
-        RespGetConnInfo resp = service.getInfo(username,password);
-        Log.d("AxionVpn","Result: "+String.valueOf(resp.result));
+    public static RespGetConnInfo getConnInfo() {
+        return service.getInfo(username,password);
     }
     public static VpnDesc [] getRegions() {
         RespGetVpns resp = service.getVpns();
         for (VpnDesc vpn : resp.vpns)
-            Log.d("AxionVpn",String.format("VPN %d: %s",vpn.id, vpn.geo_area));
+            LogManager.d(String.format("VPN %d: %s",vpn.id, vpn.geo_area));
         return resp.vpns;
     }
 
@@ -65,6 +60,8 @@ class RespGetVpnConfig {
 }
 class RespGetConnInfo {
     int result;
+    String acc_type;
+    String ip_address;
 }
 interface AxionApi {
     @GET("/api/get-vpns/")
