@@ -18,7 +18,7 @@ public class AxionService {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(url)
                 .build();
-        //restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
+        restAdapter.setLogLevel(RestAdapter.LogLevel.FULL);
         service = restAdapter.create(AxionApi.class);
     }
 

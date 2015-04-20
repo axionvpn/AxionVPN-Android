@@ -6,14 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -36,7 +34,8 @@ import de.blinkt.openvpn.core.VpnStatus;
 public class MainActivity extends Activity implements View.OnClickListener, VpnStatus.StateListener {
 
     private EditText editUser,editPass;
-    private Spinner spinner;
+    private Spinner regionList;
+    private boolean disconnected = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +44,7 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
 
         editUser = (EditText)findViewById(R.id.et_username);
         editPass = (EditText)findViewById(R.id.et_password);
-        spinner = (Spinner) findViewById(R.id.spinner_region_select);
+        regionList = (Spinner) findViewById(R.id.sp_region_select);
 
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         editUser.setText(prefs.getString("username", ""));
@@ -59,40 +58,18 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_vpn_select, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public void rememberLastRegion(VpnDesc vpn) {
         getPreferences(MODE_PRIVATE).edit().putInt("region_last_selected", vpn.id).apply();
     }
 
     public void updateVpnRegionUi(VpnDesc [] vpns) {
-        ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getApplicationContext(), R.layout.spinner_region_item, vpns);
-        spinner.setAdapter(adapter);
+        ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, vpns);
+        regionList.setAdapter(adapter);
         int lastSelected = getPreferences(MODE_PRIVATE).getInt("region_last_selected", -1);
         if (lastSelected>=0) {
             for(int i=0;i<vpns.length;i++) {
                 if (vpns[i].id == lastSelected) {
-                    spinner.setSelection(i);
+                    regionList.setSelection(i);
                     break;
                 }
             }
@@ -240,7 +217,7 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
                     protected void onPostExecute(RespGetConnInfo info) {
                         if (info!=null) {
                             ((EditText) findViewById(R.id.et_ip)       ).setText(info.ip_address);
-                            ((TextView) findViewById(R.id.tv_acct_type)).setText(info.acc_type);
+                            ((EditText) findViewById(R.id.et_acct_type)).setText(info.acc_type);
                         }
                     }
                 }.execute();
@@ -249,20 +226,23 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        findViewById(R.id.button_connect).setEnabled(false);
-                        findViewById(R.id.button_disconnect).setEnabled(true);
+                        ((Button)findViewById(R.id.button_connect)).setText(R.string.disconnect_selected);
                     }
                 });
+
+                disconnected = false;
                 break;
 
             default:
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        findViewById(R.id.button_connect).setEnabled(true);
-                        findViewById(R.id.button_disconnect).setEnabled(false);
+                        ((Button)findViewById(R.id.button_connect)).setText(R.string.connect_selected);
+                        ((EditText) findViewById(R.id.et_ip)       ).setText("");
+                        ((EditText) findViewById(R.id.et_acct_type)).setText("");
                     }
                 });
+                disconnected = true;
                 break;
         }
     }
@@ -275,19 +255,19 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
                 break;
 
             case R.id.button_connect:
-                // get username/pass from text fields and store in prefs
-                updateLoginInfo();
-                // get selected VPN id
-                final VpnDesc vpn = (VpnDesc)spinner.getSelectedItem();
-                rememberLastRegion(vpn);
-                // fetch config and connect
-                connectVpn(vpn.id);
-                break;
-
-            case R.id.button_disconnect:
-                Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
-                disconnectVPN.setAction(OpenVPNService.DISCONNECT_VPN);
-                startActivity(disconnectVPN);
+                if(disconnected) {
+                    // get username/pass from text fields and store in prefs
+                    updateLoginInfo();
+                    // get selected VPN id
+                    VpnDesc vpn = (VpnDesc) regionList.getSelectedItem();
+                    rememberLastRegion(vpn);
+                    // fetch config and connect
+                    connectVpn(vpn.id);
+                } else {
+                    Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
+                    disconnectVPN.setAction(OpenVPNService.DISCONNECT_VPN);
+                    startActivity(disconnectVPN);
+                }
                 break;
 
         }
