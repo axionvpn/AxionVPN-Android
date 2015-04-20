@@ -388,4 +388,8 @@
     <string name="connect_selected">Connect to selected VPN</string>
     <string name="disconnect_selected">Disconnect from VPN</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_axion_main">Axion VPN Client</string>
+
 </resources>

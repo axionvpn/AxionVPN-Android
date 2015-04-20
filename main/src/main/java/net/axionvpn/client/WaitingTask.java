@@ -1,10 +1,14 @@
 package net.axionvpn.client;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DialerFilter;
+import android.widget.Toast;
 
 /* this class draws the waiting_overlay layout into the provided layout for the duration of the
    background task. it will execute the optional onCompleted in the UI thread just like asynctask.
@@ -13,20 +17,20 @@ import android.view.ViewGroup;
 
 public class WaitingTask extends AsyncTask<WaitingRunnable,Void,Void> {
 
-    private Context context;
-    private ViewGroup root;
+    private Activity activity;
+    private String message;
     private WaitingRunnable[] runnables;
+    private ProgressDialog dialog;
 
-    public WaitingTask(Context context, ViewGroup root) {
-        this.context = context;
-        this.root = root;
+    public WaitingTask(Activity activity, String dialogMessage) {
+        this.activity = activity;
+        message = dialogMessage;
     }
 
     @Override
     protected void onPreExecute() {
-        // overlay progress UI
-        LayoutInflater inflater = LayoutInflater.from(context);
-        inflater.inflate(R.layout.waiting_overlay,root,true);
+        dialog = ProgressDialog.show(activity,
+                "Please wait", message, true, true);
     }
 
     @Override
@@ -44,12 +48,8 @@ public class WaitingTask extends AsyncTask<WaitingRunnable,Void,Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        dialog.dismiss();
         for (WaitingRunnable r : runnables)
             r.onCompleted();
-
-        // remove progress UI
-        View waiting = root.findViewById(R.id.waiting_root);
-        if(waiting!=null)
-            root.removeView(waiting);
     }
 }

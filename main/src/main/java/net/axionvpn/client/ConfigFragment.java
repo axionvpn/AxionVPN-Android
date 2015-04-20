@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,31 +26,44 @@ import java.util.Set;
 
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 
-public class MainActivity extends Activity implements View.OnClickListener, VpnStatus.StateListener {
+
+/**
+ */
+public class ConfigFragment extends Fragment implements View.OnClickListener,VpnStatus.StateListener {
 
     private EditText editUser,editPass;
     private Spinner regionList;
-    private boolean disconnected = true;
+    private Button connectButton;
     private WaitingTask bgTask = null;
+    private SharedPreferences prefs;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_axion_config);
+        prefs = getActivity().getPreferences(Activity.MODE_PRIVATE);
+    }
 
-        editUser = (EditText)findViewById(R.id.et_username);
-        editPass = (EditText)findViewById(R.id.et_password);
-        regionList = (Spinner) findViewById(R.id.sp_region_select);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_axion_config, container, false);
+
+        editUser   = (EditText)v.findViewById(R.id.et_username);
+        editPass   = (EditText)v.findViewById(R.id.et_password);
+        regionList = (Spinner) v.findViewById(R.id.sp_region_select);
+        connectButton = (Button) v.findViewById(R.id.button_connect);
+
         editUser.setText(prefs.getString("username", ""));
         editPass.setText(prefs.getString("password", ""));
+
+        v.findViewById(R.id.button_get_regions).setOnClickListener(this);
+        v.findViewById(R.id.button_connect).setOnClickListener(this);
 
         VpnDesc [] region_cache = retrieveVpnRegionCache();
         if(region_cache!=null) {
@@ -56,17 +71,18 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
         } else {
             updateRegions();
         }
+        return v;
     }
 
     public void rememberLastRegion(VpnDesc vpn) {
-        getPreferences(MODE_PRIVATE).edit().putInt("region_last_selected", vpn.id).apply();
+        prefs.edit().putInt("region_last_selected", vpn.id).apply();
     }
 
     public void updateVpnRegionUi(VpnDesc [] vpns) {
-        ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getApplicationContext(), android.R.layout.simple_spinner_item, vpns);
+        ArrayAdapter<VpnDesc> adapter = new ArrayAdapter<VpnDesc>(getActivity(), android.R.layout.simple_spinner_item, vpns);
         adapter.setDropDownViewResource(R.layout.spinner_region_item);
         regionList.setAdapter(adapter);
-        int lastSelected = getPreferences(MODE_PRIVATE).getInt("region_last_selected", -1);
+        int lastSelected = prefs.getInt("region_last_selected", -1);
         if (lastSelected>=0) {
             for(int i=0;i<vpns.length;i++) {
                 if (vpns[i].id == lastSelected) {
@@ -78,17 +94,14 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
     }
 
     public void storeVpnRegionCache(VpnDesc[] vpns) {
-        SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
         Gson gson = new Gson(); // json encode the objects for storage as strings
         Set<String> region_cache = new HashSet<String>();
         for(VpnDesc v : vpns)
             region_cache.add(gson.toJson(v));
-        editor.putStringSet("region_cache", region_cache);
-        editor.apply();
+        prefs.edit().putStringSet("region_cache", region_cache).apply();
     }
 
     public VpnDesc[] retrieveVpnRegionCache() {
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         Set<String> region_cache = prefs.getStringSet("region_cache",null);
 
         if(region_cache==null)
@@ -105,20 +118,22 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
 
     public void updateRegions() {
 
-        bgTask = new WaitingTask(this,"Fetching VPN Regions");
+        bgTask = new WaitingTask(getActivity(),"Fetching VPN Regions");
         bgTask.execute(new WaitingRunnable() {
             private VpnDesc[] vpns = null;
+
             @Override
             public void inBackground() throws Exception {
                 vpns = AxionService.getRegions();
             }
+
             @Override
             public void onCompleted() {
                 if (vpns != null) {
                     updateVpnRegionUi(vpns);
                     storeVpnRegionCache(vpns);
                 } else if (backgroundException != null) {
-                    Toast.makeText(getApplicationContext(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
                     LogManager.e("Error updating regions", backgroundException);
                 }
                 bgTask = null;
@@ -126,26 +141,39 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
         });
     }
 
-    public void updateLoginInfo() {
+    public boolean updateLoginInfo() {
         String username = editUser.getText().toString();
         String password = editPass.getText().toString();
 
-        SharedPreferences.Editor prefs = getPreferences(MODE_PRIVATE).edit();
-        prefs.putString("username", username);
-        prefs.putString("password", password);
-        prefs.apply();
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(getActivity(),"Username and password to Axion service must be provided",
+                    Toast.LENGTH_SHORT).show();
+            if (username.isEmpty())
+                editUser.requestFocus();
+            else
+                editPass.requestFocus();
+            return false;
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
+        editor.apply();
 
         AxionService.setLoginInfo(username, password);
+        return true;
     }
 
     /* fetches the config from Axion's HTTP server for this region, and hands it off
        to the vpn client.
      */
     public void connectVpn(final int regionId) {
+        connectButton.setEnabled(false);
 
-        bgTask = new WaitingTask(this,"Fetching VPN Config");
+        bgTask = new WaitingTask(getActivity(),"Fetching VPN Config");
         bgTask.execute(new WaitingRunnable() {
             private VpnProfile vpnProfile = null;
+
             @Override
             public void inBackground() throws Exception {
                 String conf = AxionService.getConfigForRegion(regionId);
@@ -156,13 +184,15 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
                 vpnProfile = cp.convertProfile();
                 vpnProfile.mName = "AxionVPN";
             }
+
             @Override
             public void onCompleted() {
                 if (backgroundException != null) {
-                    Toast.makeText(getApplicationContext(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), backgroundException.getMessage(), Toast.LENGTH_SHORT).show();
                     LogManager.e("Error fetching config data", backgroundException);
+                    connectButton.setEnabled(true);
                 } else {
-                    Context ctx = getApplicationContext();
+                    Context ctx = getActivity().getApplicationContext();
 
                     // save into openvpn profile manager
                     ProfileManager vpl = ProfileManager.getInstance(ctx);
@@ -187,94 +217,61 @@ public class MainActivity extends Activity implements View.OnClickListener, VpnS
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    public void onStart() {
+        super.onStart();
+        VpnStatus.addStateListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         VpnStatus.removeStateListener(this);
         if(bgTask != null)
             bgTask.cancel(true);
     }
 
-    @Override
-    protected void onResume() {
-            super.onResume();
-        VpnStatus.addStateListener(this);
-    }
-
-    @Override
-    public void updateState(String state, String logmessage, int localizedResId, VpnStatus.ConnectionStatus level) {
-        switch (level) {
-
-            case LEVEL_CONNECTED:
-                new AsyncTask<Void,Void,RespGetConnInfo>() {
-                    private Exception backgroundExc = null;
-                    @Override
-                    protected RespGetConnInfo doInBackground(Void... voids) {
-                        try {
-                            return AxionService.getConnInfo();
-                        } catch (Exception e) {
-                            backgroundExc = e;
-                            return null;
-                        }
-                    }
-                    @Override
-                    protected void onPostExecute(RespGetConnInfo info) {
-                        if (info!=null) {
-                            findViewById(R.id.status_block).setVisibility(View.VISIBLE);
-                            ((EditText) findViewById(R.id.et_ip)       ).setText(info.ip_address);
-                            ((EditText) findViewById(R.id.et_acct_type)).setText(info.acc_type);
-                        }
-                    }
-                }.execute();
-            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
-            case LEVEL_CONNECTING_SERVER_REPLIED:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((Button)findViewById(R.id.button_connect)).setText(R.string.disconnect_selected);
-                    }
-                });
-
-                disconnected = false;
-                break;
-
-            default:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((Button)findViewById(R.id.button_connect)).setText(R.string.connect_selected);
-                        ((EditText) findViewById(R.id.et_ip)       ).setText("");
-                        ((EditText) findViewById(R.id.et_acct_type)).setText("");
-                        findViewById(R.id.status_block).setVisibility(View.INVISIBLE);
-                    }
-                });
-                disconnected = true;
-                break;
-        }
-    }
-
     public void onClick(View view) {
         switch (view.getId()) {
-
             case R.id.button_get_regions:
                 updateRegions();
                 break;
 
             case R.id.button_connect:
-                if(disconnected) {
-                    // get username/pass from text fields and store in prefs
-                    updateLoginInfo();
-                    // get selected VPN id
-                    VpnDesc vpn = (VpnDesc) regionList.getSelectedItem();
-                    rememberLastRegion(vpn);
-                    // fetch config and connect
-                    connectVpn(vpn.id);
-                } else {
-                    Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
-                    disconnectVPN.setAction(OpenVPNService.DISCONNECT_VPN);
-                    startActivity(disconnectVPN);
-                }
-                break;
+                // get username/pass from text fields and store in prefs
+                if (!updateLoginInfo())
+                    break;
+                // get selected VPN id
+                VpnDesc vpn = (VpnDesc) regionList.getSelectedItem();
+                if(vpn==null)
+                    break;
+                rememberLastRegion(vpn);
+                // fetch config and connect
+                connectVpn(vpn.id);
+            break;
+        }
+    }
 
+    @Override
+    public void updateState(String state, String logmessage, int localizedResId, VpnStatus.ConnectionStatus level) {
+        switch (level) {
+            case LEVEL_NONETWORK:
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "No Available Network", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+            case LEVEL_NOTCONNECTED:
+            case LEVEL_AUTH_FAILED:
+            case UNKNOWN_LEVEL:
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectButton.setEnabled(true);
+                    }
+                });
+                break;
         }
     }
 }

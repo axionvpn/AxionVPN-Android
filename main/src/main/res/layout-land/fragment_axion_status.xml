@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context="net.axionvpn.client.StatusFragment"
+              android:id="@+id/root_layout"
+              android:orientation="vertical"
+              android:layout_margin="10dp"
+              android:padding="10dp"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/status_label"
+        android:hint="Connection Status"
+        android:layout_gravity="center_horizontal"
+        android:textSize="20sp"
+        />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/status_block"
+        >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnect_selected"
+            android:id="@+id/button_disconnect"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="10dp"
+            />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:text="Public IP"
+            android:padding="10dp"
+            />
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/button_disconnect"
+            android:layout_toStartOf="@id/button_disconnect"
+            android:background="#333333"
+            android:textColor="#eeeeee"
+            android:editable="false"
+            android:textIsSelectable="true"
+            android:id="@+id/et_ip"
+            android:padding="10dp"
+            android:gravity="center_horizontal"
+            android:layout_toRightOf="@+id/textView"
+            android:layout_toEndOf="@+id/textView"
+            android:hint="Please wait..."
+            />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/et_ip"
+            android:text="Account Type"
+            android:padding="10dp"
+            android:id="@+id/textView"
+            />
+
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_toLeftOf="@id/button_disconnect"
+            android:layout_toStartOf="@id/button_disconnect"
+            android:layout_below="@id/et_ip"
+            android:background="#333333"
+            android:textColor="#eeeeee"
+            android:gravity="center_horizontal"
+            android:editable="false"
+            android:textIsSelectable="true"
+            android:id="@+id/et_acct_type"
+            android:padding="10dp"
+            android:layout_alignLeft="@+id/et_ip"
+            android:layout_alignStart="@+id/et_ip"
+            android:hint="Please wait..."
+            />
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

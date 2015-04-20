@@ -1,5 +1,7 @@
 package net.axionvpn.client;
 
+import java.io.IOException;
+
 import retrofit.RestAdapter;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -37,8 +39,12 @@ public class AxionService {
         return resp.vpns;
     }
 
-    public static String getConfigForRegion(int regionId) {
+    public static String getConfigForRegion(int regionId) throws Exception {
         RespGetVpnConfig resp = service.getConfig(username,password,regionId);
+        if(resp==null)
+            throw new Exception("Server Error");
+        if(resp.result!=0)
+            throw new Exception("Login Failed");
         return resp.conf;
     }
 }
