@@ -27,17 +27,6 @@
             android:autoRemoveFromRecents="true"
             android:excludeFromRecents="true"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_vpn_select"
-            tools:ignore="ExportedActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"

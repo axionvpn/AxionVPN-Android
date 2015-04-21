@@ -52,7 +52,7 @@ public class ConfigFragment extends Fragment implements View.OnClickListener,Vpn
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_axion_config, container, false);
+        View v = inflater.inflate(R.layout.fragment_config, container, false);
 
         editUser   = (EditText)v.findViewById(R.id.et_username);
         editPass   = (EditText)v.findViewById(R.id.et_password);

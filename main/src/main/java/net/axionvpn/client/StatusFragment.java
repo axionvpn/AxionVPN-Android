@@ -26,7 +26,7 @@ public class StatusFragment extends Fragment implements VpnStatus.StateListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_axion_status, container, false);
+        View v = inflater.inflate(R.layout.fragment_status, container, false);
         publicIp = (EditText)v.findViewById(R.id.et_ip);
         acctType = (EditText)v.findViewById(R.id.et_acct_type);
         statusLabel = (TextView)v.findViewById(R.id.status_label);

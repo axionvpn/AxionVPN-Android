@@ -15,8 +15,8 @@
           android:id="@+id/fragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          tools:layout="@layout/fragment_axion_main"
-          android:name="net.axionvpn.client.AxionMainActivityFragment"
+          tools:layout="@layout/fragment_empty"
+          android:name="net.axionvpn.client.EmptyFragment"
         />
 
 </LinearLayout>

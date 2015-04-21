@@ -15,7 +15,7 @@ public class AxionMainActivity extends FragmentActivity implements VpnStatus.Sta
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_axion_main);
+        setContentView(R.layout.activity_main);
     }
 
     @Override
