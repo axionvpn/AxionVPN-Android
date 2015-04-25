@@ -18,7 +18,7 @@
         android:name="de.blinkt.openvpn.core.ICSOpenVPNApplication"
         android:allowBackup="true"
         android:icon="@drawable/axion_x"
-        android:label="Axion VPN Client"
+        android:label="Axion VPN"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Black.NoTitleBar"
         tools:ignore="UnusedAttribute" >
