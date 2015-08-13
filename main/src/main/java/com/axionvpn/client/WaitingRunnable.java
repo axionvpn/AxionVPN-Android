@@ -1,4 +1,4 @@
-package net.axionvpn.client;
+package com.axionvpn.client;
 
 public abstract class WaitingRunnable {
     public Exception backgroundException = null;

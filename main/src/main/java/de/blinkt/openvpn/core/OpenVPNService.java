@@ -39,8 +39,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 
-import net.axionvpn.client.BuildConfig;
-import net.axionvpn.client.R;
+import com.axionvpn.client.BuildConfig;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;

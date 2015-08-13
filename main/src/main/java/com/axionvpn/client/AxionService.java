@@ -1,4 +1,4 @@
-package net.axionvpn.client;
+package com.axionvpn.client;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import retrofit.http.POST;
 
 public class AxionService {
 
-    private static final String url = "https://axionvpn.net/";
+    private static final String url = "https://axionvpn.com/";
 
     private static AxionApi service;
     private static String username;

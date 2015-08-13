@@ -6,7 +6,7 @@
 
 <resources>
 
-    <style name="Theme.CreateShortCut" parent="android:Theme.Holo.DialogWhenLarge" />
+    <style name="Theme.CreateShortCut" parent="android:Theme.Holo.Light.NoActionBar" />
 
     <style name="logWindowStatusText">
         <item name="android:paddingLeft">@dimen/paddingItemsSidebarLog</item>

@@ -1,4 +1,4 @@
-package net.axionvpn.client;
+package com.axionvpn.client;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

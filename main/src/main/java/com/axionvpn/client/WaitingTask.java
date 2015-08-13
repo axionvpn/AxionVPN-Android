@@ -1,4 +1,4 @@
-package net.axionvpn.client;
+package com.axionvpn.client;
 
 import android.app.Activity;
 import android.app.ProgressDialog;

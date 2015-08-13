@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.VpnProfile;
 
 public class VPNLaunchHelper {

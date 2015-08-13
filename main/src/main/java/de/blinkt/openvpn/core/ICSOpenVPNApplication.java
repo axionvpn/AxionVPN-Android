@@ -12,8 +12,8 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 */
 
-import net.axionvpn.client.BuildConfig;
-import net.axionvpn.client.R;
+import com.axionvpn.client.BuildConfig;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.core.PRNGFixes;
 
 /*

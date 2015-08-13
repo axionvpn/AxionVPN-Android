@@ -388,6 +388,7 @@
 
     <string name="title_activity_axion_main">Axion VPN</string>
 
+    <string name="copyright_axion">Copyright &#xa9; 2015 AxionVPN &lt;a href=\"http://axionvpn.com\"&gt;axionvpn.com&lt;/a&gt;</string>
     <string name="account_header">Axion Account</string>
     <string name="region_header">Axion Service Region</string>
     <string name="update_button">Update List</string>

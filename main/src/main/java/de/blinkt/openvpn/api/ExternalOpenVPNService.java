@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;

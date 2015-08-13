@@ -48,7 +48,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.NativeUtils;

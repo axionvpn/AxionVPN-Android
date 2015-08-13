@@ -41,7 +41,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.core.VpnStatus;
 
 public class AboutFragment extends Fragment implements View.OnClickListener {

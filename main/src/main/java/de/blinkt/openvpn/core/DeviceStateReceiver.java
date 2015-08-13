@@ -13,7 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.preference.PreferenceManager;
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 
 import java.util.LinkedList;

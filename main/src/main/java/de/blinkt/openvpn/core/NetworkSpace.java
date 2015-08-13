@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.util.*;
 
-import net.axionvpn.client.BuildConfig;
+import com.axionvpn.client.BuildConfig;
 
 public class NetworkSpace {
 

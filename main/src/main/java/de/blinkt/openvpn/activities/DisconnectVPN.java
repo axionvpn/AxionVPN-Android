@@ -10,7 +10,7 @@ import android.app.AlertDialog;
 import android.content.*;
 import android.os.IBinder;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 

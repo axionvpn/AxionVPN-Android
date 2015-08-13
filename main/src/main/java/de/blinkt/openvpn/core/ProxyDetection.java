@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 import de.blinkt.openvpn.VpnProfile;
 
 public class ProxyDetection {

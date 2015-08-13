@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
               android:layout_height="match_parent"
-              tools:context="net.axionvpn.client.StatusFragment"
+              tools:context="com.axionvpn.client.StatusFragment"
               android:id="@+id/root_layout"
               android:orientation="vertical"
               android:layout_margin="10dp"
@@ -39,8 +39,6 @@
             android:layout_width="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:background="#333333"
-            android:textColor="#eeeeee"
             android:editable="false"
             android:textIsSelectable="true"
             android:gravity="center_horizontal"
@@ -63,8 +61,6 @@
             android:layout_width="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/et_ip"
-            android:background="#333333"
-            android:textColor="#eeeeee"
             android:gravity="center_horizontal"
             android:editable="false"
             android:textIsSelectable="true"
@@ -82,6 +78,7 @@
         android:id="@+id/button_disconnect"
         android:layout_gravity="center_horizontal"
         android:layout_margin="20dp"
+        android:backgroundTint="#abe45f"
+        android:backgroundTintMode="multiply"
         />
-
 </LinearLayout>

@@ -1,4 +1,4 @@
-package net.axionvpn.client;
+package com.axionvpn.client;
 
 import android.content.Intent;
 import android.os.AsyncTask;

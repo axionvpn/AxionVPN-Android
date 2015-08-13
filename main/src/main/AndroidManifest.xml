@@ -5,7 +5,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="net.axionvpn.client" >
+    package="com.axionvpn.client" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -17,10 +17,10 @@
     <application
         android:name="de.blinkt.openvpn.core.ICSOpenVPNApplication"
         android:allowBackup="true"
-        android:icon="@drawable/axion_x"
+        android:icon="@drawable/axion_a"
         android:label="Axion VPN"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Black.NoTitleBar"
+        android:theme="@android:style/Theme.Light.NoTitleBar"
         tools:ignore="UnusedAttribute" >
         <activity
             android:name="de.blinkt.openvpn.activities.DisconnectVPN"
@@ -65,7 +65,7 @@
 
         <provider
             android:name="de.blinkt.openvpn.FileProvider"
-            android:authorities="net.axionvpn.client.FileProvider"
+            android:authorities="com.axionvpn.client.FileProvider"
             android:exported="true"
             android:grantUriPermissions="true"
             tools:ignore="ExportedContentProvider" />

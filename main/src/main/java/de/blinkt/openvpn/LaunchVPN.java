@@ -23,7 +23,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
-import net.axionvpn.client.R;
+import com.axionvpn.client.R;
 
 import java.io.IOException;
 
