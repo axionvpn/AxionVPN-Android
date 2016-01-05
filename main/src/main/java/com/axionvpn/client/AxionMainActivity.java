@@ -41,7 +41,7 @@ public class AxionMainActivity extends FragmentActivity implements VpnStatus.Sta
                 nowDisconnected = false;
         }
         // see if the fragment needs to be swapped
-        if(disconnected==null || disconnected.booleanValue()!=nowDisconnected) {
+        if(disconnected==null || disconnected!=nowDisconnected) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             if(nowDisconnected)

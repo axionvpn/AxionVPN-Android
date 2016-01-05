@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.OpenVPNService;
@@ -45,12 +46,18 @@ public class StatusFragment extends Fragment implements VpnStatus.StateListener,
 
                 @Override
                 protected RespGetConnInfo doInBackground(Void... voids) {
-                    try {
-                        return AxionService.getConnInfo();
-                    } catch (Exception e) {
-                        backgroundExc = e;
-                        return null;
+                    RespGetConnInfo info = null;
+                    for(int i=1;i<5;i++) {
+                        try {
+                            Thread.sleep(i*500);
+                            info = AxionService.getConnInfo();
+                            break;
+                        } catch (Exception e) {
+                            LogManager.e("calling getConnInfo", e);
+                            backgroundExc = e;
+                        }
                     }
+                    return info;
                 }
 
                 @Override
@@ -58,9 +65,8 @@ public class StatusFragment extends Fragment implements VpnStatus.StateListener,
                     if (info != null) {
                         publicIp.setText(info.ip_address);
                         acctType.setText(info.acc_type);
-                    }
-                    if (backgroundExc != null) {
-                        LogManager.e("calling getConnInfo", backgroundExc);
+                    } else if (backgroundExc != null) {
+                        Toast.makeText(getActivity(),backgroundExc.getLocalizedMessage(),Toast.LENGTH_LONG).show();
                     }
                 }
             }.execute();
